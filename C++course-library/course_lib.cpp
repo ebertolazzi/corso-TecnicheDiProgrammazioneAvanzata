@@ -20,7 +20,7 @@
 #include "course_lib.h"
 
 #ifdef OS_WINDOWS
-HANDLE TermColorLLhConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+HANDLE TermColor::hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 #else
 std::ostream * TermColor::pStream = &std::cout;
 #endif
