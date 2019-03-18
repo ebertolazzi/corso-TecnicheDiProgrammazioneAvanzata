@@ -17,55 +17,56 @@
 using namespace std;
 
 /*\
-
   restituisce un vettore (vector<int>) con
   l'elenco  dei numeri primi <= N
 \*/
 void
-crivello_eratostene( int N, vector<int> & primi ) {
+crivello_eratostene( int Nmin, int Nmax, vector<int> & primi ) {
   // uso vettore di booleani
-  vector<bool> is_a_prime(N+1); // alloco vettore a dimensione N+1
+  vector<bool> is_a_prime(Nmax+1); // alloco vettore a dimensione N+1
   // inizializzo (tutti i numeri sono numeri primi...)
-  for ( int i = 0; i <= N; ++i ) is_a_prime[i] = true;
+  for ( int i = 0; i <= Nmax; ++i ) is_a_prime[i] = true;
   // modo usando primitive STL
   std::fill( is_a_prime.begin(), is_a_prime.end(), true );
 
-  int nprimi = 2;
-  for ( int i = 2; i <= N; ++i ) {
+  int nprimi = 0;
+  for ( int i = 2; i <= Nmax; ++i ) {
     if ( is_a_prime[i] ) {
-      ++nprimi; // trovato primo
+      if ( i >= Nmin ) ++nprimi; // trovato primo
       // eliminare i multipli da essere primi...
+      for ( int j = i+i; j <= Nmax; j += i )
+        is_a_prime[j] = false;
     }
   }
 
-  // fare loop
-  primi.resize( nprimi );
-  // loop per riempire i numeri primi
-
   // piu elegante
+  primi.clear();
   primi.reserve( nprimi );
-  // loop con primi.push_back(...);
-
+  for ( int i = Nmin; i <= Nmax; ++i )
+    if ( is_a_prime[i] )
+      primi.push_back(i);
 }
 
 int
 main() {
-  int N = 1000;
+  int Nmax = 100000000;
+  int Nmin = Nmax-10000;
   vector<int> primi;
   TicToc tm;
 
   tm.tic();
-  crivello_eratostene( N, primi );
+  crivello_eratostene( Nmin, Nmax, primi );
   tm.toc();
 
   // stampa numeri primi
-  for ( int i = 0; i < N; ++i ) {
+  cout << "NPRIMI = " << primi.size() << '\n';
+  for ( int i = 0; i < primi.size(); ++i ) {
     cout << setw(8) << primi[i];
     if ( (i % 10) == 0 ) cout << '\n' ;
     else                 cout << ' ';
   }
 
-  cout << "Elapsed (eratostene) = " << tm.elapsed_ms() << "(ms)\n";
+  cout << "\n\nElapsed (eratostene) = " << tm.elapsed_ms() << "(ms)\n";
 
   return 0;
 };
