@@ -6,8 +6,8 @@ OPT        = -O2 -g0 -Wall
 all: es11
 
 es11: es11_string_sort.cpp
-	$(CXX) $(OPT) es11_string_sort.cpp $(COURSE_LIB) -o es11
+	$(CXX) $(OPT) es11_string_sort.cpp $(COURSE_LIB) -o es11.exe
 
 clean:
-	rm -f es11
+	rm -f es11.exe
 

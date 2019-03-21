@@ -4,7 +4,7 @@
 :|: AA 2018/2019
 :|:
 :|: corso tenuto da
-:|: prof. Enrico Bertolazzi e prof. Andrea Del Prete
+:|: prof. Enrico Bertolazzi
 :|:
 :|:
 \*/
@@ -15,11 +15,6 @@
 #include <algorithm> // per std::swap
 
 using namespace std;
-
-/*\
-  restituisce un vettore (vector<int>) con
-  l'elenco  dei numeri primi <= N
-\*/
 
 string
 disk( int N, int d ) {

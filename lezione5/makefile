@@ -6,14 +6,14 @@ OPT        = -O2 -g0 -Wall
 all: es12 es13 es14
 
 es12: es12_heap_sort.cpp
-	$(CXX) $(OPT) es12_heap_sort.cpp $(COURSE_LIB) -o es12
+	$(CXX) $(OPT) es12_heap_sort.cpp $(COURSE_LIB) -o es12.exe
 
 es13: es13_plot_heap.cpp
-	$(CXX) $(OPT) es13_plot_heap.cpp $(COURSE_LIB) -o es13
+	$(CXX) $(OPT) es13_plot_heap.cpp $(COURSE_LIB) -o es13.exe
 
 es14: es14_struct.cpp
-	$(CXX) $(OPT) es14_struct.cpp $(COURSE_LIB) -o es14
+	$(CXX) $(OPT) es14_struct.cpp $(COURSE_LIB) -o es14.exe
 
 clean:
-	rm -f es12 es13 es14
+	rm -f es12.exe es13.exe es14.exe
 

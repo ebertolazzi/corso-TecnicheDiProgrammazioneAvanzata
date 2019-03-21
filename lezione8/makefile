@@ -6,8 +6,8 @@ OPT        = -O2 -g0 -Wall
 all: es21
 
 es21: es21_eratostene.cpp
-	$(CXX) $(OPT) es21_eratostene.cpp $(COURSE_LIB) -o es21
+	$(CXX) $(OPT) es21_eratostene.cpp $(COURSE_LIB) -o es21.exe
 
 clean:
-	rm -f es21
+	rm -f es21.exe
 

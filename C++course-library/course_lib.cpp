@@ -7,7 +7,7 @@
 :|: AA 2018/2019
 :|:
 :|: corso tenuto da
-:|: prof. Enrico Bertolazzi e prof. Andrea Del Prete
+:|: prof. Enrico Bertolazzi
 :|:
 :|: ATTENZIONE per compilare questo file serve
 :|: attivare C++11
