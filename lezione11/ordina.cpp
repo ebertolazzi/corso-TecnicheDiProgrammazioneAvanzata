@@ -19,60 +19,19 @@ using namespace std;
 :|: Ordinamento quicksort, vedi note online
 :|: per la descrizione
 \*/
+#include <iostream>
+#include <algorithm> // per std::swap
+
+using namespace std;
+
+class Qsort_select {
+public:
+  static int pselect;
+};
 
 template <typename T>
 class Qsort {
 public:
-
-  static
-  int
-  median3( T const & a, T const & b, T const & c ) {
-    if ( a <= b ) {
-      if ( b <= c ) return 1; // b mediana a <= b <= c
-      if ( a <= c ) return 2; // c mediana b < a <= c
-      return 0; // a mediana c < a <= b
-    } else {
-      if ( a <= c ) return 0; // a mediana b < a <= c
-      if ( b <= c ) return 2; // c mediana b <= c < a
-      return 1; // b mediana c < b < a
-    }
-  }
-
-  static
-  int
-  partition( T a[], int N ) {
-    if ( N >= 3 ) {
-      int imed = N>>1;
-      switch ( Qsort<T>::median3( a[0], a[imed], a[N-1] ) ) {
-      case 0:
-        break;
-      case 1:
-        std::swap( a[0], a[imed] );
-        break;
-      case 2:
-        std::swap( a[0], a[N-1] );
-        break;
-      }
-    }
-    // salva pivot in posizione ilow
-
-    int ipivot = 0;
-    T   pivot  = a[ipivot];
-    int i = 0;
-    while ( ++i < N ) {
-      if ( a[i] < pivot ) {
-        // aggiunge a[i] alla lista elementi < pivot
-        ++ipivot;
-        std::swap( a[i], a[ipivot] );
-        // gli elementi a[ilow+1..ipivot] < pivot
-      }
-    }
-    // scambia a[ilow] <=> a[ipivot]
-    // std::swap( a[ilow], a[ipivot] );
-    a[0   ]   = a[ipivot];
-    a[ipivot] = pivot;
-    return ipivot;
-  }
 
   static
   void
@@ -88,18 +47,182 @@ public:
       }
     }
   }
+
+  static
+  bool
+  preprocess( T a[], int N ) {
+    int nG = 0;
+    int nE = 0;
+    int nL = 0;
+    for ( int i = 1; i < N; ++i ) {
+      T const & a0 = a[i-1];
+      T const & a1 = a[i];
+      if      ( a0 < a1 ) ++nG;
+      else if ( a0 > a1 ) ++nL;
+      else                ++nE;
+    }
+    bool ok = false;
+    if ( nL == 0 ) {
+      ok = true;
+    } else if ( nG == 0 ) {
+      std::reverse( a, a+N );
+      ok = true;
+    } else if ( nG < nL ) {
+      std::reverse( a, a+N );
+    }
+    return ok;
+  }
+
+  static
+  int
+  median3( T const a[], int i0, int i1, int i2 ) {
+    if ( a[i0] > a[i1] ) std::swap( i0, i1 );
+    if ( a[i1] > a[i2] ) std::swap( i1, i2 );
+    if ( a[i0] > a[i1] ) std::swap( i0, i1 );
+    return i1;
+  }
+
+  static
+  int
+  median5( T const a[], int i0, int i1, int i2, int i3, int i4 ) {
+    if ( a[i0] < a[i1] ) std::swap( i0, i1 );
+    if ( a[i2] < a[i3] ) std::swap( i2, i3 );
+    if ( a[i0] < a[i2] ) {
+      std::swap( i0, i2 );
+      std::swap( i1, i3 );
+    }
+    if ( a[i1] < a[i4] ) std::swap( i1, i4 );
+    if ( a[i1] > a[i2] ) {
+      if ( a[i2] > a[i4] ) return i2;
+      return i4;
+    } else {
+      if ( a[i1] > a[i3] ) return i1;
+      return i3;
+    }
+  }
+
+  static
+  int
+  r_median( T a[], int lo, int hi ) {
+    int m1, m2, m3;
+    int N = hi-lo+1;
+    if ( N > 10 ) {
+      int eps2 = N>>2;
+      int eps  = eps2>>1;
+      m1 = r_median( a, lo,      lo+eps  );
+      m2 = r_median( a, lo+eps2, hi-eps2 );
+      m3 = r_median( a, hi-eps,  hi      );
+    } else {
+      m1 = lo;
+      m2 = (lo+hi)>>1;
+      m3 = hi;
+    }
+    return median3( a, m1, m2, m3 );
+  }
+
+  static
+  int
+  approx_median( T a[], int lo, int hi ) {
+    int eps = (hi-lo)>>2;
+    int md  = (lo+hi)>>1;
+    if ( eps < 100  ) return md;
+    //if ( eps < 1000 ) return Qsort<T>::median3( a, lo, md, hi );
+    //if ( eps < 1000 )
+    return Qsort<T>::median5( a, lo, lo+eps, md, hi-eps, hi );
+    //return r_median( a, lo, hi );
+  }
+
+  static
+  int
+  partition( T a[], int lo, int hi ) {
+    int eps    = (hi-lo)>>2;
+    int md     = (lo+hi)>>1;
+    int ipivot = Qsort<T>::median5( a, lo, lo+eps, md, hi-eps, hi );
+    std::swap( a[lo], a[ipivot] );
+
+    // salva pivot in posizione ilow
+    ipivot  = lo;
+    T pivot = a[ipivot];
+    int i = lo;
+    while ( ++i <= hi ) {
+      if ( a[i] < pivot ) {
+        // aggiunge a[i] alla lista elementi < pivot
+        ++ipivot;
+        std::swap( a[i], a[ipivot] );
+        // gli elementi a[ilow+1..ipivot] < pivot
+      }
+    }
+    // scambia a[ilow] <=> a[ipivot]
+    // std::swap( a[ilow], a[ipivot] );
+    a[lo]     = a[ipivot];
+    a[ipivot] = pivot;
+    return ipivot;
+  }
+
+  static
+  int
+  partition1( T a[], int LO, int hi ) {
+    int eps    = (hi-LO)>>2;
+    int md     = (LO+hi)>>1;
+    int ipivot = Qsort<T>::median5( a, LO, LO+eps, md, hi-eps, hi );
+    //int ipivot = Qsort<T>::approx_median( a, LO, hi );
+    std::swap( a[LO], a[ipivot] );
+    T    pivot      = a[LO];
+    int  lo         = LO+1;
+    bool lo_less_hi = true;
+    while ( lo_less_hi ) {
+      while ( (lo_less_hi = lo <= hi) && a[hi] >= pivot ) --hi;
+      while ( (lo_less_hi = lo <= hi) && a[lo] <= pivot ) ++lo;
+      if ( lo_less_hi ) swap(a[lo], a[hi]);
+    }
+    swap(a[LO], a[hi]);
+    return hi;
+  }
+
   static
   void
   sort( T a[], int N ) {
-    if ( N > 50 ) {
-      int ipivot = Qsort<T>::partition( a, N );
-      Qsort<T>::sort( a, ipivot );
-      Qsort<T>::sort( a+ipivot+1, N-ipivot-1 );
-    } else {
-      Qsort<T>::insert_sort( a, N );
+
+    typedef struct { int lo, hi; } LH;
+
+    bool ok = preprocess( a, N );
+    if ( ok ) return;
+
+    std::vector<LH> STACK;
+    STACK.reserve(1000);
+    LH tmp = {0,N-1};
+    STACK.push_back(tmp);
+
+    //int maxdeep = 0;
+    while ( STACK.size() > 0 ) {
+      //maxdeep = max(maxdeep, int(L.size()));
+      LH & lh = STACK.back();
+      int lo = lh.lo;
+      int hi = lh.hi;
+      STACK.pop_back();
+      if ( hi-lo > 30 ) {
+        int ipivot = Qsort<T>::partition( a, lo, hi );
+        LH lh1 = { lo, ipivot-1 };
+        LH lh2 = { ipivot+1, hi };
+        STACK.push_back(lh1);
+        STACK.push_back(lh2);
+      } else {
+        for ( int n = lo; n < hi; ++n ) {
+          for ( int i = n; i >= lo; --i ) {
+            // continua a inserire se non soddisfa l'ordinamento
+            if ( a[i] <= a[i+1] ) break;
+            std::swap( a[i], a[i+1] );
+          }
+        }
+        //Qsort<T>::insert_sort( a+lo, N );
+      }
     }
+    //cout << "maxdeep = " << maxdeep << '\n';
   }
 };
+
+
+int Qsort_select::pselect = 1;
 
 void
 ordina( int vec[], int N ) {

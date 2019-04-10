@@ -19,6 +19,11 @@ using namespace std;
 :|: per la descrizione
 \*/
 
+class Qsort_select {
+public:
+  static int pselect;
+};
+
 template <typename T>
 class Qsort {
 public:
@@ -69,7 +74,6 @@ public:
     if ( a[i0] > a[i1] ) std::swap( i0, i1 );
     if ( a[i1] > a[i2] ) std::swap( i1, i2 );
     if ( a[i0] > a[i1] ) std::swap( i0, i1 );
-    //if ( !(a[i0] <= a[i1] && a[i1] <= a[i2]) ) cerr << "FALLITO!";
     return i1;
   }
 
@@ -113,11 +117,22 @@ public:
 
   static
   int
-  partition( T a[], int lo, int hi ) {
+  approx_median( T a[], int lo, int hi ) {
     int eps = (hi-lo)>>2;
-    //int ipivot = Qsort<T>::median3( a, lo, (lo+hi)>>1, hi );
-    int ipivot = Qsort<T>::median5( a, lo, lo+eps, lo+2*eps, hi-eps, hi );
+    int md  = (lo+hi)>>1;
+    if ( eps < 100  ) return md;
+    //if ( eps < 1000 ) return Qsort<T>::median3( a, lo, md, hi );
+    //if ( eps < 1000 )
+    return Qsort<T>::median5( a, lo, lo+eps, md, hi-eps, hi );
+    //return r_median( a, lo, hi );
+  }
 
+  static
+  int
+  partition( T a[], int lo, int hi ) {
+    int eps    = (hi-lo)>>2;
+    int md     = (lo+hi)>>1;
+    int ipivot = Qsort<T>::median5( a, lo, lo+eps, md, hi-eps, hi );
     std::swap( a[lo], a[ipivot] );
 
     // salva pivot in posizione ilow
@@ -142,9 +157,10 @@ public:
   static
   int
   partition1( T a[], int LO, int hi ) {
-    int eps = (hi-LO)>>2;
-    //int ipivot = Qsort<T>::median3( a, LO, (LO+hi)>>1, hi );
-    int ipivot = Qsort<T>::median5( a, LO, LO+eps, LO+2*eps, hi-eps, hi );
+    int eps    = (hi-LO)>>2;
+    int md     = (LO+hi)>>1;
+    int ipivot = Qsort<T>::median5( a, LO, LO+eps, md, hi-eps, hi );
+    //int ipivot = Qsort<T>::approx_median( a, LO, hi );
     std::swap( a[LO], a[ipivot] );
     T    pivot      = a[LO];
     int  lo         = LO+1;
@@ -161,28 +177,39 @@ public:
   static
   void
   sort( T a[], int N ) {
+
+    typedef struct { int lo, hi; } LH;
+
     bool ok = preprocess( a, N );
     if ( ok ) return;
 
-    std::vector<int> L, U;
-    L.reserve(1000);
-    U.reserve(1000);
-    L.push_back(0);
-    U.push_back(N-1);
+    std::vector<LH> STACK;
+    STACK.reserve(1000);
+    LH tmp = {0,N-1};
+    STACK.push_back(tmp);
 
     //int maxdeep = 0;
-    while ( L.size() > 0 ) {
+    while ( STACK.size() > 0 ) {
       //maxdeep = max(maxdeep, int(L.size()));
-      int lo = L.back(); L.pop_back();
-      int hi = U.back(); U.pop_back();
-      int N  = hi-lo+1;
-
-      if ( N > 80 ) {
+      LH & lh = STACK.back();
+      int lo = lh.lo;
+      int hi = lh.hi;
+      STACK.pop_back();
+      if ( hi-lo > 30 ) {
         int ipivot = Qsort<T>::partition( a, lo, hi );
-        L.push_back(lo);       U.push_back(ipivot-1);
-        L.push_back(ipivot+1); U.push_back(hi);
+        LH lh1 = { lo, ipivot-1 };
+        LH lh2 = { ipivot+1, hi };
+        STACK.push_back(lh1);
+        STACK.push_back(lh2);
       } else {
-        Qsort<T>::insert_sort( a+lo, N );
+        for ( int n = lo; n < hi; ++n ) {
+          for ( int i = n; i >= lo; --i ) {
+            // continua a inserire se non soddisfa l'ordinamento
+            if ( a[i] <= a[i+1] ) break;
+            std::swap( a[i], a[i+1] );
+          }
+        }
+        //Qsort<T>::insert_sort( a+lo, N );
       }
     }
     //cout << "maxdeep = " << maxdeep << '\n';
@@ -216,6 +243,7 @@ check( int N, double v[], double v1[] ) {
   cout << "RES = " << res << '\n' ;
 }
 
+int Qsort_select::pselect = 1;
 
 int
 main() {
