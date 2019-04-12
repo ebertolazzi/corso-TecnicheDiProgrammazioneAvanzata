@@ -29,10 +29,13 @@ endif
 
 # check if the OS string contains 'Darwin'
 ifneq (,$(findstring Darwin, $(OS)))
-  WARN     = -Wall -Weverything -Wno-sign-compare -Wno-global-constructors -Wno-padded -Wno-documentation-unknown-command 
+  WARN     = -Wall -Wno-sign-compare -Wno-global-constructors -Wno-padded -Wno-documentation-unknown-command 
   CXX      = clang++
   CC       = clang
+  #CXX      = g++-8
+  #CC       = gcc-8
   CXXFLAGS = $(WARN) $(INC) -O3 -fPIC
+  LIBS     = -framework Accelerate
 endif
 
 SRCS  =
@@ -45,10 +48,13 @@ MKDIR = mkdir -p
 #
 # nome_della_regola: dipendenze
 # <tab> comandi da eseguire se le dipendenze "non sono rispettate"
-all: es42
+all: es42 es43
 
 es42: es42_mm.o
 	$(CXX) $(INC) $(CXXFLAGS) es42_mm.o -o es42.exe $(LIBS)
+
+es43: es43_mm_lapack.o
+	$(CXX) $(INC) $(CXXFLAGS) es43_mm_lapack.o -o es43.exe $(LIBS)
 
 lib: lib/$(LIB_CLOTHOID)$(STATIC_EXT) lib/$(LIB_CLOTHOID)$(DYNAMIC_EXT)
 
