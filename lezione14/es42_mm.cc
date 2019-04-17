@@ -55,9 +55,10 @@ mm_standard(
   // prodotto standard
   for ( unsigned i = 0; i < n; ++i ) {
     for ( unsigned j = 0; j < m; ++j ) {
-      C[addr(i,j,ldC)] = 0;
+      Type acc = 0;
       for ( unsigned k = 0; k < p; ++k )
-        C[addr(i,j,ldC)] += A[addr(i,k,ldA)]*B[addr(k,j,ldB)];
+        acc += A[addr(i,k,ldA)]*B[addr(k,j,ldB)];
+      C[addr(i,j,ldC)] = acc;
     }
   }
 }
