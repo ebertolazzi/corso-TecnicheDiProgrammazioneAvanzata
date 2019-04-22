@@ -23,6 +23,10 @@
 #ifndef COURSE_LIB_HPP
 #define COURSE_LIB_HPP
 
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wc++11-extensions"
+#endif
+
 // determina se sono su sistema operativo WINDOWS
 #if defined(_WIN32) || defined(_WIN64) || defined(WIN32) || defined(WIN64)
   #define OS_WINDOWS
