@@ -47,19 +47,19 @@ static char const * campo[] = {
 "@@@@@@@@@@@@@@@@@@@@ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 };
 
-// uso solo le fuzioni/oggetti che mi servono da namespace std
+// uso solo le funzioni/oggetti che mi servono da namespace std
 using std::cout;
 using std::cerr;
 using std::exception;
 
-class CarRace {
+class CarRaceField {
   typedef int integer;
   integer nrows, ncols;
   char * board;
 
 public:
 
-  CarRace() {
+  CarRaceField() {
     this->nrows = sizeof(campo)/sizeof(campo[0]);
     this->ncols = strlen(campo[0]);
     this->board = new char[this->nrows*this->ncols];
@@ -69,7 +69,7 @@ public:
     cout << "nrows = " << this->nrows << " ncols = " << this-> ncols << '\n';
   }
 
-  ~CarRace() {
+  ~CarRaceField() {
     delete this->board;
   }
 
@@ -85,6 +85,14 @@ public:
     return board[i+j*this->nrows];
   }
 
+  // accesso elemento (i,j) in lettura/scrittura
+  char
+  get_for_print( integer i, integer j ) const {
+    char c = this->get( i, j );
+    if ( c == '@' ) return '.';
+    return c;
+  }
+
   // accesso elemento (i,j) in sola lettura
   char
   operator () ( integer i, integer j ) const {
@@ -98,11 +106,11 @@ public:
   }
 
   /*\
-     0: posizione libera
-     1: punto di partenza
-     2: punto di arrivo
-    -1: muro
-    -2: punto  fuori dal campo
+   |  0: posizione libera
+   |  1: punto di partenza
+   |  2: punto di arrivo
+   | -1: muro
+   | -2: punto  fuori dal campo
   \*/
   integer
   check_position( integer i, integer j ) const {
@@ -115,10 +123,10 @@ public:
   }
 
   /*\
-     0:
-     1: punto di arrivo
-    -1: muro
-    -2: punto  fuori dal campo
+   |  0:
+   |  1: punto di arrivo
+   | -1: muro
+   | -2: punto  fuori dal campo
   \*/
 
   integer
@@ -146,10 +154,10 @@ public:
   }
 
   /*\
-     0:
-     1: punto di arrivo
-    -1: muro
-    -2: punto  fuori dal campo
+   |  0:
+   |  1: punto di arrivo
+   | -1: muro
+   | -2: punto  fuori dal campo
   \*/
   integer
   do_move(
@@ -165,13 +173,20 @@ public:
     double ri = double(to_i-from_i)/delta;
     double rj = double(to_j-from_j)/delta;
 
+    char chmove = '+';
+    if ( delta_i > 3*delta_j ) {
+      chmove = '|';
+    } else if ( delta_j > 3*delta_i ) {
+      chmove = '-';
+    }
+
     for ( integer k = 1; k < delta; ++k ) {
       integer i = from_i + integer( (k+0.5)*ri );
       integer j = from_j + integer( (k+0.5)*rj );
       //cout << "i = " << i << " j = " << j << '\n';
       integer res = this->check_position( i, j );
       if ( res < 0 ) return res;
-      this->get(i,j) = '+';
+      this->get(i,j) = chmove;
     }
     this->get(from_i,from_j) = 'o';
     this->get(to_i,to_j)     = 'o';
@@ -185,7 +200,7 @@ public:
     stream << "-+\n";
     for ( integer i = 0; i < this->nrows; ++i ) {
       stream << '|';
-      for ( integer j = 0; j < this->ncols; ++j ) stream << " " << this->get(i,j);
+      for ( integer j = 0; j < this->ncols; ++j ) stream << " " << this->get_for_print(i,j);
       stream << " |\n";
     }
     stream << '+';
@@ -194,16 +209,104 @@ public:
   }
 };
 
+class CarRaceCar {
+  typedef int integer;
+
+  integer ipos, jpos;
+  integer ivel, jvel;
+
+public:
+
+  CarRaceCar() : ipos(0), jpos(0), ivel(0), jvel(0) {
+  }
+
+  ~CarRaceCar() {
+  }
+
+  /*\
+   | posiziona la macchina alla posizione (i,j), ferma
+  \*/
+  void
+  setup( integer i, integer j ) {
+    ipos = i;
+    jpos = j;
+    ivel = jvel = 0;
+  }
+
+  /*\
+   |
+   | accelera la macchia in una possibile direzione
+   |
+   | 0 = no acceleration
+   | 1 = accelerate i-direction
+   | 2 = decelerate i-direction
+   | 3 = accelerate j-direction
+   | 4 = decelerate j-direction
+   |
+  \*/
+  void
+  do_acc( integer dir ) {
+    switch ( dir ) {
+    case 0:         break;
+    case 1: ++ivel; break;
+    case 2: --ivel; break;
+    case 3: ++jvel; break;
+    case 4: --jvel; break;
+    }
+  }
+
+  /*\
+   |
+   | ritorna il movimeto della machina in base allo stato
+   |
+  \*/
+  void
+  get_move( integer & i, integer & j, integer & new_i, integer & new_j ) const {
+    i     = ipos;
+    j     = jpos;
+    new_i = ipos + ivel;
+    new_j = jpos + jvel;
+  }
+
+  /*\
+   |
+   | avanza lo stato della macchina
+   |
+  \*/
+
+  void
+  do_step() {
+    ipos += ivel;
+    jpos += jvel;
+  }
+
+};
+
 int
 main() {
 
   try {
-    CarRace cr;
+    CarRaceField field;
+    CarRaceCar   car;
 
-    int res = cr.do_move( 26, 0, 24, 7 );
-    cout << "res = " << res << '\n';
-    cr.plot( cout );
+    int move[] = {3,3,3,2,0,1,2,4,4,4,4,2,2};
 
+    car.setup( 26, 0 );
+
+    for ( int kk = 0; kk < 13; ++kk ) {
+      car.do_acc( move[kk] );
+      int i, j, new_i, new_j;
+      car.get_move( i, j, new_i, new_j );
+      cout << "i = " << i << " j = " << j
+           << " new_i = " << new_i
+           << " new_j = " << new_j
+           << '\n';
+      car.do_step();
+
+      int res = field.do_move( i, j, new_i, new_j );
+      cout << "res = " << res << '\n';
+      field.plot( cout );
+    }
   }
   catch ( exception const & error ) {
     cerr << "Exception: " << error.what() << "\n\n";

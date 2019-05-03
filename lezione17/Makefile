@@ -48,13 +48,16 @@ MKDIR = mkdir -p
 #
 # nome_della_regola: dipendenze
 # <tab> comandi da eseguire se le dipendenze "non sono rispettate"
-all: es52 es53
+all: es52 es53 es54
 
 es52: es52_auto.o
 	$(CXX) $(INC) $(CXXFLAGS) es52_auto.o -o es52.exe $(LIBS)
 
 es53: es53_edit_ricorsiva.o
 	$(CXX) $(INC) $(CXXFLAGS) es53_edit_ricorsiva.o -o es53.exe $(LIBS)
+
+es54: es54_edit_matrice.o
+	$(CXX) $(INC) $(CXXFLAGS) es54_edit_matrice.o -o es54.exe $(LIBS)
 
 #
 # REGOLA CON PATTERN
