@@ -48,10 +48,13 @@ MKDIR = mkdir -p
 #
 # nome_della_regola: dipendenze
 # <tab> comandi da eseguire se le dipendenze "non sono rispettate"
-all: es55
+all: es55 es56
 
 es55: es55_load_dictionary.o
 	$(CXX) $(INC) $(CXXFLAGS) es55_load_dictionary.o -o es55.exe $(LIBS)
+
+es56: es56_sodoku.o
+	$(CXX) $(INC) $(CXXFLAGS) es56_sodoku.o -o es56.exe $(LIBS)
 
 #
 # REGOLA CON PATTERN
