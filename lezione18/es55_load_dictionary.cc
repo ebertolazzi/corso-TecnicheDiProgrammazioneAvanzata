@@ -72,14 +72,19 @@ read_dictionary( string const & filename, Dictionary & dic ) {
     // line == parola da leggere, può contenere / verso la fine
     // cerca il primo carattere '/' nella stringa
     size_t pos = line.find('/');
-    if ( pos != string::npos ) {
+    if ( pos != string::npos && pos > 1 ) {
       // trovato separatore, estre sottostringa
       dic.insert( line.substr( 0, pos ) );
-    } else {
+    } else if ( line.length() > 1 ) {
       // non trovato separatore, uso stringa intera
       dic.insert( line );
     }
   }
+  dic.insert( "a" );
+  dic.insert( "i" );
+  dic.insert( "e" );
+  dic.insert( "o" );
+  dic.insert( "é" );
   cout << "lette " << dic.size() << " parole dal file: " << filename << '\n';
 }
 
@@ -93,14 +98,29 @@ is_a_word( string const & w, Dictionary const & dic ) {
 static
 bool
 is_splittable( string const & w, Dictionary const & dic ) {
-  // da fare
-  return true;
+  bool ok = false;
+  //cout << "ENTRA\n";
+  for ( unsigned k=1; k <= w.length() && !ok; ++k ) {
+    string wl = w.substr( 0, k );
+    //cout << "wl = " << wl << '\n';
+    if ( is_a_word( wl, dic ) ) {
+      string wr = w.substr( k );
+      //cout << "wl,wr = " << wl << "," << wr << '\n';
+      if ( wr.length() > 0 ) {
+        ok = is_splittable( wr, dic );
+        //cout << "ok = " << ok << "\n";
+      } else {
+        ok = true;
+      }
+    }
+  }
+  //cout << "ESCE\n";
+  return ok;
 }
 
 static
 void
 InterpunctioVerborum( string const & w, vector<string> & words ) {
-  // da fare
 }
 
 string stringona = "minibikedaiaiannieventiatrentoilminicrossorganizzatodallassociazionesportivagsapovoèormaiallatredicesimaedizioneeprometteanchequestannodivertimentoedallegriapergrandiepicciniilmiticoziobertoconlasuaofficinavolantegarantiràinterventimeccanicieinsegneràaibambiniaprendersicuradelpropriomezzocascoobbligatorionutellapartypertuttiallafineepremiadestrazioneconcluderannoilpomeriggiovenitenumerosi";
@@ -134,6 +154,9 @@ main() {
     italian.insert("berto");
     italian.insert("nutella");
     italian.insert("party");
+
+    //stringona = "minibikeeventik";
+    stringona = "minibikeeventitredicesimabertopiccini";
 
     cout
       << ( is_splittable( stringona, italian ) ?  "VERO" : "FALSO" )
