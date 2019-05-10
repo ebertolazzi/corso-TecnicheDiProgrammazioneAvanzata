@@ -48,10 +48,16 @@ MKDIR = mkdir -p
 #
 # nome_della_regola: dipendenze
 # <tab> comandi da eseguire se le dipendenze "non sono rispettate"
-all: es57
+all: es57 es58 es59
 
 es57: es57_build_dictionary.o
 	$(CXX) $(INC) $(CXXFLAGS) es57_build_dictionary.o -o es57.exe $(LIBS)
+
+es58: es58_testo_stringa.o
+	$(CXX) $(INC) $(CXXFLAGS) es58_testo_stringa.o -o es58.exe $(LIBS)
+
+es59: es59_stringa_testo.o
+	$(CXX) $(INC) $(CXXFLAGS) es59_stringa_testo.o -o es59.exe $(LIBS)
 
 #
 # REGOLA CON PATTERN
@@ -71,7 +77,7 @@ es57: es57_build_dictionary.o
 	$(CC) $(INC) $(CFLAGS) $(DEFS) -c  $< -o $@
 
 run:
-	./es51.exe
+	./es58.exe
 
 clean:
 	rm -f es??.exe *.o
