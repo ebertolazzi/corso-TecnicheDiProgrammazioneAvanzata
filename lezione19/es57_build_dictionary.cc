@@ -110,8 +110,20 @@ main() {
     italiano.insert( "e" );
     italiano.insert( "i" );
     italiano.insert( "o" );
+    // preposizioni accentate
     italiano.insert( "l'" );
+    italiano.insert( "c'" );
+    italiano.insert( "d'" );
+    italiano.insert( "all'" );
+    italiano.insert( "bell'" );
+    italiano.insert( "quell'" );
+    italiano.insert( "grand'" );
+    italiano.insert( "pover'" );
+    italiano.insert( "quest'" );
+    italiano.insert( "dall'" );
     italiano.insert( "dell'" );
+    italiano.insert( "nell'" );
+    italiano.insert( "sull'" );
     cout << "TOTALE " << italiano.size() << " parole\n";
     ofstream file("italiano.dic");
     Dictionary::const_iterator it = italiano.begin();
