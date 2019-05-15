@@ -201,7 +201,7 @@ namespace GraphLib {
     dump( ostream & stream ) const {
       vector<Vertex>::const_iterator iV = V.begin();
       for ( ; iV != V.end(); ++iV ) {
-        stream << "V n." << (iV-V.begin());
+        stream << "V n." << (iV-V.begin()) << ':' ;
         iV->dump( stream );
       }
     }
