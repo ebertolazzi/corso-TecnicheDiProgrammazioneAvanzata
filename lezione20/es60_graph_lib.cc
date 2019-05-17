@@ -16,14 +16,15 @@ read_maze(
   unsigned                & ncol,
   unsigned                & nvertex,
   vector<vector<int> >    & vertex_pos,
-  vector<vector<string> > & vertex_label
+  vector<vector<string> > & vertex_label,
+  vector<string>          & rows
 ) {
   vertex_pos.clear();
   vertex_label.clear();
+  rows.clear();
 
   // leggo labirinto e motto in vettore di stringhe
   ifstream file(fname);
-  vector<string> rows;
   while ( file.good() ) {
     string line;
     getline( file, line, '\n');
@@ -53,7 +54,7 @@ read_maze(
         // label del vertice "i,j" come stringa
         if ( c == ' ' ) {
           ostringstream oss;
-          oss << i << "," << j;
+          oss << i << " " << j;
           vertex_label[i][j] = oss.str();
         } else {
           vertex_label[i][j] = c;
@@ -75,34 +76,48 @@ build_graph(
   GraphLib::Graph               & G
 ) {
   // so quanti sono i vertici, alloco memoria corrispondente
+  // croce
+  int const ii1[] = {  1, 0, -1,  0 };
+  int const jj1[] = {  0, 1,  0, -1 };
+  // diagonale
+  int const ii2[] = {  1, 1, -1, -1 };
+  int const jj2[] = { -1, 1,  1, -1 };
   G.resize_vertex( nvertex );
   // costruisco grafo
-  for ( unsigned i = 0; i < nrow; ++i ) {
-    for ( unsigned j = 0; j < ncol; ++j ) {
+  for ( int i = 0; i < nrow; ++i ) {
+    for ( int j = 0; j < ncol; ++j ) {
       int vij = vertex_pos[i][j];
       if ( vij < 0 ) continue; // muro, niente da fare
 
       G.setup_vertex( vij, vertex_label[i][j] );
 
-      // cerco i vicini
-      if ( j > 0 ) {
-        int vL = vertex_pos[i][j-1];
-        if ( vL >= 0 ) G.add_edge( vij, vL );
+      // cerco i vicini croce
+      for ( int k = 0; k < 4; ++k ) {
+        int iii = i+ii1[k];
+        int jjj = j+jj1[k];
+        if ( iii < 0 || iii >= nrow || jjj < 0 || jjj >= ncol ) continue;
+        int vv = vertex_pos[iii][jjj];
+        if ( vv >= 0 ) G.add_edge( vij, vv );
       }
-      if ( j < ncol-1 ) {
-        int vR = vertex_pos[i][j+1];
-        if ( vR >= 0 ) G.add_edge( vij, vR );
-      }
-      if ( i > 0 ) {
-        int vT = vertex_pos[i-1][j];
-        if ( vT >= 0 ) G.add_edge( vij, vT );
-      }
-      if ( i < nrow-1 ) {
-        int vB = vertex_pos[i+1][j];
-        if ( vB >= 0 ) G.add_edge( vij, vB );
+      // cerco i vicini diagonale
+      for ( int k = 0; k < 4; ++k ) {
+        int iii = i+ii2[k];
+        int jjj = j+jj2[k];
+        if ( iii < 0 || iii >= nrow || jjj < 0 || jjj >= ncol ) continue;
+        int v1 = vertex_pos[iii][jjj];
+        int v2 = vertex_pos[i][jjj];
+        int v3 = vertex_pos[iii][j];
+        if ( v1 >= 0 && (v2 >= 0 || v3 >= 0) ) G.add_edge( vij, v1 );
       }
     }
   }
+}
+
+static
+void
+plot_maze( vector<string> const & rows ) {
+  for ( unsigned i = 0; i < rows.size(); ++i )
+    cout << rows[i] << '\n';
 }
 
 int
@@ -113,14 +128,44 @@ main() {
     unsigned nrow, ncol, nvertex;
     vector<vector<int> >    vertex_pos;
     vector<vector<string> > vertex_label;
+    vector<string>          rows;
 
-    read_maze( "maze1.txt", nrow, ncol, nvertex, vertex_pos, vertex_label );
+    read_maze( "maze4.txt", nrow, ncol, nvertex, vertex_pos, vertex_label, rows );
+    plot_maze( rows );
 
     // costruzione grafo
     GraphLib::Graph G("maze");
     build_graph( nrow, ncol, nvertex, vertex_pos, vertex_label, G );
 
-    G.dump(cout);
+    unsigned in, out;
+    for ( unsigned i = 0; i < G.numVertex(); ++i ) {
+      if ( G.get_label(i) == "I" ) in  = i;
+      if ( G.get_label(i) == "U" ) out = i;
+    }
+
+    cout << "in  = " << in  << '\n';
+    cout << "out = " << out << '\n';
+
+    GraphLib::Tree T("spanning tree");
+    // cerca nodo in e out
+    G.build_spanning_tree(T,in,true);
+
+    // percorro spanning tree da foglia in uscita
+    unsigned i = out;
+    while ( ! T.is_root(i) ) {
+      istringstream iss(T.get_label(i));
+      unsigned ii, jj;
+      iss >> ii >> jj;
+      //cout << T.get_label(i) << '\n';
+      rows[ii][jj] = '.';
+      i = T.get_father( i );
+    }
+
+    cout << "\n\n";
+    plot_maze( rows );
+
+    //G.dump(cout);
+    //T.dump(cout);
   }
   catch ( string const & error ) {
     cerr << "Errore: " << error << "\n\n";

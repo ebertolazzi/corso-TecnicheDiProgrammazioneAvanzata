@@ -50,8 +50,8 @@ MKDIR = mkdir -p
 # <tab> comandi da eseguire se le dipendenze "non sono rispettate"
 all: es60
 
-es60: es60_graph_lib.o
-	$(CXX) $(INC) $(CXXFLAGS) es60_graph_lib.o -o es60.exe $(LIBS)
+es60: es60_graph_lib.o graph_lib.o
+	$(CXX) $(INC) $(CXXFLAGS) es60_graph_lib.o graph_lib.o -o es60.exe $(LIBS)
 
 #
 # REGOLA CON PATTERN

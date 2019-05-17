@@ -44,6 +44,10 @@ namespace GraphLib {
       this->neighbors_pos.clear();
     }
 
+    string const &
+    get_label() const
+    { return this->label; }
+
     // restituisce il grado del nodo = numero di vicini
     unsigned
     degree() const
@@ -113,6 +117,10 @@ namespace GraphLib {
       this->father_pos = ~unsigned(0);
     }
 
+    string const &
+    get_label() const
+    { return this->label; }
+
     // restituisce la posizione del vertice "padre" nel grafo
     unsigned
     get_father() const
@@ -122,6 +130,12 @@ namespace GraphLib {
     bool
     is_root() const
     { return this->father_pos == ~unsigned(0); }
+
+    // stampa vertice con posizione dei suoi vicini
+    void
+    dump( ostream & stream ) const {
+      stream << "label:" << this->label << " -> father:" << this->father_pos << '\n';
+    }
 
   };
 
@@ -150,6 +164,11 @@ namespace GraphLib {
     unsigned
     numVertex() const {
       return unsigned( V.size() );
+    }
+
+    string const &
+    get_label( unsigned i ) const {
+      return this->V[i].get_label();
     }
 
     /*\
@@ -195,7 +214,7 @@ namespace GraphLib {
     }
 
     void
-    build_spanning_tree( Tree & T, unsigned v0 );
+    build_spanning_tree( Tree & T, unsigned v0, bool BFS );
 
     void
     dump( ostream & stream ) const {
@@ -231,7 +250,8 @@ namespace GraphLib {
       V.resize( size_t(nv) );
     }
 
-    // da un nome al vertice i-esimo ed eventualmente cancella i suoi vicini
+    // da un nome al vertice i-esimo e lo inizializza come root di
+    // un albero con 1 solo nodo
     void
     setup_vertex( unsigned i, string const & name ) {
       this->V[i].setup( name );
@@ -240,8 +260,36 @@ namespace GraphLib {
     // aggiungo edge al grafo modificando i vicini
     // dei vertici corrispondenti
     void
-    setup( unsigned sun, unsigned father ) {
-      this->V[sun].setup( father );
+    setup( unsigned son, unsigned father ) {
+      this->V[son].setup( father );
+    }
+
+    // aggiungo edge al grafo modificando i vicini
+    // dei vertici corrispondenti
+    unsigned
+    get_father( unsigned son ) const {
+      return this->V[son].get_father();
+    }
+
+    // aggiungo edge al grafo modificando i vicini
+    // dei vertici corrispondenti
+    bool
+    is_root( unsigned i ) const {
+      return this->V[i].is_root();
+    }
+
+    string const &
+    get_label( unsigned i ) const {
+      return this->V[i].get_label();
+    }
+
+    void
+    dump( ostream & stream ) const {
+      vector<Vertex_of_a_tree>::const_iterator iV = V.begin();
+      for ( ; iV != V.end(); ++iV ) {
+        stream << "V n." << (iV-V.begin()) << ':' ;
+        iV->dump( stream );
+      }
     }
 
   };
