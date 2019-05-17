@@ -50,7 +50,7 @@ MKDIR = mkdir -p
 # <tab> comandi da eseguire se le dipendenze "non sono rispettate"
 all: es61
 
-es60: es61_maze_solver.o
+es61: es61_maze_solver.o
 	$(CXX) $(INC) $(CXXFLAGS) es61_maze_solver.o -o es60.exe $(LIBS)
 
 #
