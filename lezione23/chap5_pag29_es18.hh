@@ -182,6 +182,7 @@ namespace gioco {
   class grafo_delle_configurazioni {
     // da vertice a vettore di interi con ID del nodo vicino
     vector<integer> vertex_connection[1000];
+    vector<integer> father[1000]; // da usare per fare spanning tree
     integer nv;
     integer ne;
   public:
