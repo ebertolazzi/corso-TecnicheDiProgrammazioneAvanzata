@@ -48,10 +48,16 @@ MKDIR = mkdir -p
 #
 # nome_della_regola: dipendenze
 # <tab> comandi da eseguire se le dipendenze "non sono rispettate"
-all: zaino
+all: zaino zaino2 zaino3
 
 zaino:zaino.o
 	$(CXX) $(INC) $(CXXFLAGS) zaino.o -o zaino.exe $(LIBS)
+
+zaino2:zaino2.o
+	$(CXX) $(INC) $(CXXFLAGS) zaino2.o -o zaino2.exe $(LIBS)
+
+zaino3:zaino3.o
+	$(CXX) $(INC) $(CXXFLAGS) zaino3.o -o zaino3.exe $(LIBS)
 
 #
 # REGOLA CON PATTERN

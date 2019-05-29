@@ -24,7 +24,7 @@ typedef int integer;
  Soluzione ricorsiva pura
 
 \*/
-integer
+pair<integer,integer>
 Zaino(
   integer                 C, // capacità
   vector<integer> const & P, // lista di pesi
@@ -32,15 +32,19 @@ Zaino(
 ) {
   if ( k == 1 ) {
     // un solo peso da inserire
-    if ( P[0] > C ) return 0;
-    else            return P[0];
+    if ( P[0] > C ) return pair<integer,integer>(0,0);
+    else            return pair<integer,integer>(1,P[0]);
   }
 
   // calcolo peso totale se non inserisco il peso P[k-1]
-  integer peso = Zaino( C, P, k-1 );
+  pair<integer,integer> peso = Zaino( C, P, k-1 );
   if ( P[k-1] < C ) { // posso inserirlo
-    integer peso_si = Zaino( C-P[k-1], P, k-1 ) + P[k-1];
-    if ( peso_si > peso ) peso = peso_si; // conviene inerire in peso
+    pair<integer,integer> peso_si = Zaino( C-P[k-1], P, k-1 );
+    // inserisco peso nello zaino
+    ++peso_si.first; // incremento contatore oggetti
+    peso_si.second += P[k-1]; // aggiungo peso al totale calcolato
+    if ( (peso_si.second == peso.second && peso_si.first > peso.first ) ||
+         peso_si.second > peso.second ) peso = peso_si; // conviene inerire in peso
   }
   return peso;
 }
@@ -71,12 +75,13 @@ main() {
   integer N = integer(P.size());
 
   integer C = 157;
-  integer peso = Zaino( C, P, N );
+  pair<integer,integer> peso = Zaino( C, P, N );
 
   cout
     << "Lo Zaino di capacita' : " << C
     << " puo' essere riempito fino a "
-    << peso << " chili\n";
+    << peso.second << " chili con "
+    << peso.first << " oggetti\n";
 
   return 0;
 }
