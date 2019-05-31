@@ -171,7 +171,8 @@ class Random {
   std::mt19937       gen; // Standard mersenne_twister_engine seeded with rd()
 public:
   Random()
-  : gen(rd())
+  //: gen(rd())
+  : gen(1)
   {}
 
   real_type
