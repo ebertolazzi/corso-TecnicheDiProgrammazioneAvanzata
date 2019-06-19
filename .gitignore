@@ -4,3 +4,5 @@ Icon?
 *.o
 a.out
 git_ignore
+.import_error
+.itime

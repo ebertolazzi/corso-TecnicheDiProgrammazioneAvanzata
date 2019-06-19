@@ -1,0 +1,9 @@
+name: "esame2"
+title: "Test esame, esercizio 2"
+time_limit: 1
+memory_limit: 256
+n_input: 6
+public_testcases: 0, 1, 2, 3, 4, 5
+infile: "input.txt"
+outfile: "output.txt"
+token_mode: infinite
